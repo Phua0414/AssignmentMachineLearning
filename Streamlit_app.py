@@ -9,34 +9,23 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import DBSCAN, MeanShift, estimate_bandwidth, AgglomerativeClustering, OPTICS, AffinityPropagation, Birch, SpectralClustering
 from sklearn.mixture import GaussianMixture
 
-# Example function to download file from Google Drive
-# Function to download file from Google Drive using requests
-def download_file_from_gdrive(file_id, destination):
-    URL = f"https://drive.google.com/uc?export=download&id={file_id}"
-    session = requests.Session()
-    response = session.get(URL, stream=True)
-    
-    # Handle the confirmation cookie if the file is large
-    if 'confirm' in response.url:
-        confirm = response.cookies['confirm']
-        response = session.get(URL + "&confirm=" + confirm, stream=True)
-
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(1024):
-            if chunk:
-                f.write(chunk)
-
-# Links to your .pkl files
-data_file_id = "1Pg3NEaXJVp_lQkjwFITGfehVPMejbWTa"
-models_file_id = "10YqWQPN-tRLalDu-WJJjLU2G5fDlVkfs"
+# Links to your .pkl files on GitHub
+data_file_url = "https://raw.githubusercontent.com/Phua0414/AssignmentMachineLearning/main/data.pkl"
+models_file_url = "https://raw.githubusercontent.com/Phua0414/AssignmentMachineLearning/main/all_models.pkl"
 
 # File paths
 data_file_path = "data.pkl"
 models_file_path = "all_models.pkl"
 
-# Download the files from Google Drive
-download_file_from_gdrive(data_file_id, data_file_path)
-download_file_from_gdrive(models_file_id, models_file_path)
+# Function to download file from GitHub
+def download_file_from_github(url, destination):
+    response = requests.get(url)
+    with open(destination, "wb") as f:
+        f.write(response.content)
+
+# Download the files from GitHub
+download_file_from_github(data_file_url, data_file_path)
+download_file_from_github(models_file_url, models_file_path)
 
 # Load data and models from pickle files
 def load_data_and_models():
