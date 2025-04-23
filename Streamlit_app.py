@@ -154,7 +154,7 @@ def plot_clusters(df_pca, labels, title):
 def main():
     st.title("Machine Learning Clustering App")
     
-    url = "https://raw.githubusercontent.com/Phua0414/Streamlit_Demo/main/marine-historical-2023-en.csv"
+    url = "https://raw.githubusercontent.com/Phua0414/AssignmentMachineLearning/main/marine-historical-2023-en.csv"
     
     # Read CSV data from GitHub
     df = pd.read_csv(url)
