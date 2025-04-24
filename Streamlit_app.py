@@ -197,6 +197,19 @@ def main():
             plot_clusters(df_pca, labels, f"{algorithm} Clustering")
     
     if method == "Custom Clustering":
+        # Default values for the parameters
+        bandwidth = None
+        bin_seeding = None
+        cluster_all = None
+        k = None
+        linkage = None
+        metric = None
+        eps = None
+        xi = None
+        covariance_type = None
+        damping = None
+        preference = None
+        
         n_components = st.slider("Select Number of PCA Components", 2, 5, 2)
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
 
