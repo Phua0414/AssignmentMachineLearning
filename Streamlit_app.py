@@ -104,7 +104,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_sampl
         model = SpectralClustering(n_clusters=k, random_state=42, affinity='nearest_neighbors')
         labels = model.fit_predict(df_pca_dynamic)
     else:
-        return None, None, None, None
+        return None, None, None, None, None, None
 
     # Calculate Silhouette Score and Davies-Bouldin Index
     if len(set(labels)) > 1:
@@ -115,7 +115,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_sampl
     else:
         silhouette, db_index, calinski_score, dunn_index_score = -1, -1, -1, -1
     
-    return df_pca_dynamic, labels, silhouette, db_index
+    return df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score
 
 # Function to perform static clustering (using pre-trained models)
 def perform_static_clustering(df_scaled, algorithm):
