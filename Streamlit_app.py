@@ -218,7 +218,7 @@ def main():
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
 
 
-         if algorithm == "HDBSCAN":
+        if algorithm == "HDBSCAN":
             min_cluster_size = st.selectbox("Select Min Cluster Size", range(5, 21, 3))
             selection_method = st.selectbox("Select Selection Method", ['eom', 'leaf'])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
