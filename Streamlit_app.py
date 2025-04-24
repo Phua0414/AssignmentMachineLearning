@@ -97,9 +97,6 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
     elif algorithm == "Affinity Propagation":
         model = AffinityPropagation(damping=damping, preference=preference, affinity=metric)
         labels = model.fit_predict(df_pca_dynamic)
-        #Ensure the number of clusters is valid for silhouette score
-        if len(set(labels)) < 2:
-            return df_pca_dynamic, labels, -1, -1, -1, -1 
     elif algorithm == "BIRCH":
         model = Birch(n_clusters=k)
         labels = model.fit_predict(df_pca_dynamic)
@@ -223,7 +220,7 @@ def main():
 
         if algorithm == "Affinity Propagation":
             damping = st.slider("Select Damping", 0.5, 0.95, 0.11)
-            preference = st.selectbox("Select Preference", [-200, -150, -100, -50, 0])
+            preference = st.selectbox("Select Preference", [-200, -150, -100, -50])
             metric = 'euclidean'
 
         if algorithm == "Agglomerative Clustering":
