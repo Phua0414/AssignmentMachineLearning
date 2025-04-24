@@ -97,6 +97,9 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
     elif algorithm == "Affinity Propagation":
         model = AffinityPropagation(damping=damping, preference=preference, affinity=metric)
         labels = model.fit_predict(df_pca_dynamic)
+        #Ensure the number of clusters is valid for silhouette score
+        if len(set(labels)) < 2:
+            return df_pca_dynamic, labels, -1, -1, -1, -1 
     elif algorithm == "BIRCH":
         model = Birch(n_clusters=k)
         labels = model.fit_predict(df_pca_dynamic)
@@ -104,7 +107,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model = SpectralClustering(n_clusters=k, random_state=42, affinity='nearest_neighbors')
         labels = model.fit_predict(df_pca_dynamic)
     else:
-        return None, None, None, None, None, None
+        return None, None, -1, -1, -1, -1
 
     # Calculate Silhouette Score and Davies-Bouldin Index
     if len(set(labels)) > 1:
