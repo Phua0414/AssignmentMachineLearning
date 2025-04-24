@@ -201,6 +201,7 @@ def main():
         bandwidth = None
         bin_seeding = None
         cluster_all = None
+        num_clusters = None
         k = None
         linkage = None
         metric = None
