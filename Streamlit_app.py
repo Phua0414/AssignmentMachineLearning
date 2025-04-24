@@ -64,10 +64,7 @@ def dunn_index(X, labels):
     inter_dists = cdist(cluster_centers, cluster_centers)
     np.fill_diagonal(inter_dists, np.inf)
     min_intercluster = inter_dists.min()
-    max_intracluster = max([
-        cdist(X[labels == k], X[labels == k]).max()
-        for k in unique_clusters if len(X[labels == k]) > 1
-    ])
+    max_intracluster = max([cdist(X[labels == k], X[labels == k]).max() for k in unique_clusters if len(X[labels == k]) > 1])
     return min_intercluster / max_intracluster if max_intracluster != 0 else -1
 
 # Function to perform dynamic clustering (with user-defined parameters)
@@ -75,34 +72,37 @@ def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
+    # Ensure you're only passing numeric columns to the clustering algorithm
+    df_scaled_numeric = df_scaled.select_dtypes(include=[np.number])
+
     if algorithm == "DBSCAN":
         model = DBSCAN(eps=eps, metric=metric)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     elif algorithm == "Mean Shift":
         model = MeanShift(bandwidth=bandwidth, bin_seeding=bin_seeding, cluster_all=cluster_all)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     elif algorithm == "Gaussian Mixture":
         model = GaussianMixture(n_components=num_clusters, covariance_type=covariance_type, random_state=42)
-        model.fit(df_pca_dynamic)
-        labels = model.predict(df_pca_dynamic)
+        model.fit(df_scaled_numeric)
+        labels = model.predict(df_scaled_numeric)
     elif algorithm == "Agglomerative Clustering":
         model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, metric=metric)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     elif algorithm == "OPTICS":
         model = OPTICS(eps=eps, metric=metric, xi=xi)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     elif algorithm == "HDBSCAN":
         model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, metric=metric, cluster_selection_method=selection_method)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     elif algorithm == "Affinity Propagation":
         model = AffinityPropagation(damping=damping, preference=preference, affinity=metric)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
         # Check if the number of labels is invalid (too many or too few clusters)
-        if len(set(labels)) < 2 or len(set(labels)) >= len(df_pca_dynamic):
-            return df_pca_dynamic, labels, -1, -1, -1, -1 
+        if len(set(labels)) < 2 or len(set(labels)) >= len(df_scaled_numeric):
+            return df_scaled_numeric, labels, -1, -1, -1, -1 
     elif algorithm == "BIRCH":
         model = Birch(threshold=threshold, branching_factor=branching_factor, n_clusters=num_clusters)
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     elif algorithm == "Spectral Clustering":
         model = SpectralClustering(
             n_clusters=num_clusters, 
@@ -110,20 +110,20 @@ def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None
             n_neighbors=n_neighbors if affinity == 'nearest_neighbors' else 10,  # Only apply n_neighbors if affinity is 'nearest_neighbors'
             gamma=gamma if affinity == 'rbf' else 1.0  # Only apply gamma if affinity is 'rbf'
         )
-        labels = model.fit_predict(df_pca_dynamic)
+        labels = model.fit_predict(df_scaled_numeric)
     else:
         return None, None, -1, -1, -1, -1
 
     # Calculate Silhouette Score and Davies-Bouldin Index
     if len(set(labels)) > 1:
-        silhouette = silhouette_score(df_pca_dynamic, labels)
-        db_index = davies_bouldin_score(df_pca_dynamic, labels)
-        calinski_score = calinski_harabasz_score(df_pca_dynamic, labels)
-        dunn_index_score = dunn_index(df_pca_dynamic, labels)
+        silhouette = silhouette_score(df_scaled_numeric, labels)
+        db_index = davies_bouldin_score(df_scaled_numeric, labels)
+        calinski_score = calinski_harabasz_score(df_scaled_numeric, labels)
+        dunn_index_score = dunn_index(df_scaled_numeric, labels)
     else:
         silhouette, db_index, calinski_score, dunn_index_score = -1, -1, -1, -1
     
-    return df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score
+    return df_scaled_numeric, labels, silhouette, db_index, calinski_score, dunn_index_score
 
 # Function to perform static clustering (using pre-trained models)
 def perform_static_clustering(df_scaled, algorithm):
