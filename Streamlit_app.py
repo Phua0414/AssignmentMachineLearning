@@ -219,7 +219,7 @@ def main():
             covariance_type = st.selectbox("Select Covariance Type", ['full', 'tied', 'diag', 'spherical'])
 
         if algorithm == "Affinity Propagation":
-            damping = st.selectbox("Select Damping", [0.5, 0.95, 5])
+            damping = st.slider("Select Damping", 0.5, 0.95, 0.11)
             preference = st.selectbox("Select Preference", [-200, -150, -100, -50, 0])
             metric = 'euclidean'
 
