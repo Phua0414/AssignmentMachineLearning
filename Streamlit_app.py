@@ -71,7 +71,7 @@ def dunn_index(X, labels):
     return min_intercluster / max_intracluster if max_intracluster != 0 else -1
 
 # Function to perform dynamic clustering (with user-defined parameters)
-def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None):
+def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None):
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
@@ -86,7 +86,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model.fit(df_pca_dynamic)
         labels = model.predict(df_pca_dynamic)
     elif algorithm == "Agglomerative Clustering":
-        model = AgglomerativeClustering(n_clusters=k)
+        model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, affinity=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "OPTICS":
         model = OPTICS(min_samples=min_samples)
@@ -207,7 +207,19 @@ def main():
             num_clusters = None
             covariance_type = None
 
-        if algorithm in ["Agglomerative Clustering", "BIRCH", "Spectral Clustering"]:
+        if algorithm == "Agglomerative Clustering":
+            num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
+            linkage = st.selectbox("Select Linkage Method", ['ward', 'complete', 'average'])
+            if linkage == 'ward':
+                metric = 'euclidean'
+            else:
+                metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
+        else:
+            k = None
+            linkage = None
+            metric = None
+
+        if algorithm in ["BIRCH", "Spectral Clustering"]:
             k = st.slider("Select Number of Clusters", 2, 10, 4)
         else:
             k = None
@@ -226,7 +238,7 @@ def main():
             cluster_all = None
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
