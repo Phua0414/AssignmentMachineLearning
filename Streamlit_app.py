@@ -223,13 +223,13 @@ def main():
             selection_method = st.selectbox("Select Selection Method", ['eom', 'leaf'])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
         
-        if algorithm == "DBSCAN":
+        elif algorithm == "DBSCAN":
             eps_values = np.linspace(0.02, 0.2, 10)
             eps_values_rounded = np.round(eps_values, 2)
             eps = st.selectbox("Select Epsilon (eps)", eps_values_rounded)
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
         
-        if algorithm == "Spectral Clustering":
+        elif algorithm == "Spectral Clustering":
             # Spectral Clustering Parameters
             num_clusters = st.selectbox("Select Number of Clusters", range(2, 11))
             affinity = st.selectbox("Select Affinity", ['nearest_neighbors', 'rbf'])
@@ -238,21 +238,21 @@ def main():
             else:
                 gamma = st.slider("Select Gamma", 0.5, 2.0, 1.0) 
                 
-        if algorithm == "BIRCH":
+        elif algorithm == "BIRCH":
             num_clusters = st.selectbox("Select Number of Clusters", range(2, 11))
             threshold = st.selectbox("Select Threshold", [0.1, 0.2, 0.3])
             branching_factor = st.selectbox("Select Branching Factor", [25, 50])
                 
-        if algorithm in ["Gaussian Mixture"]:
+        elif algorithm == "Gaussian Mixture":
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
             covariance_type = st.selectbox("Select Covariance Type", ['full', 'tied', 'diag', 'spherical'])
 
-        if algorithm == "Affinity Propagation":
+        elif algorithm == "Affinity Propagation":
             damping = st.slider("Select Damping", 0.5, 0.99, 0.5)
             preference = st.selectbox("Select Preference", [-200, -150, -100, -50])
             metric = 'euclidean'
 
-        if algorithm == "Agglomerative Clustering":
+        elif algorithm == "Agglomerative Clustering":
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
             linkage = st.selectbox("Select Linkage Method", ['ward', 'complete', 'average'])
             if linkage == 'ward':
@@ -260,12 +260,12 @@ def main():
             else:
                 metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
-        if algorithm == "OPTICS":
+        elif algorithm == "OPTICS":
             eps = st.selectbox("Select Epsilon (eps)", [0.2, 2.0, 15])
             xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
-        if algorithm == "Mean Shift":
+        elif algorithm == "Mean Shift":
             bandwidth = st.slider("Select Bandwidth", 0.1, 1.5, 1.0)
             bin_seeding = st.selectbox("Bin Seeding", [True, False])
             cluster_all = st.selectbox("Cluster All", [True, False])
