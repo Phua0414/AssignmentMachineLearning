@@ -95,7 +95,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model = hdbscan.HDBSCAN(min_cluster_size=min_samples)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Affinity Propagation":
-        model = AffinityPropagation(damping=damping, preference=preference, metric=metric)
+        model = AffinityPropagation(damping=damping, preference=preference, affinity=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "BIRCH":
         model = Birch(n_clusters=k)
