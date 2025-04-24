@@ -222,7 +222,7 @@ def main():
         else:
             k = None
         eps = st.slider("Select Epsilon (eps) Value", 0.1, 5.0, 0.5, step=0.1) if algorithm == "DBSCAN" else None
-        min_samples = st.slider("Select Min Samples", 1, 20, 10) if algorithm in ["DBSCAN", "OPTICS", "HDBSCAN"] else None
+        min_samples = st.slider("Select Min Samples", 1, 20, 10) if algorithm in ["DBSCAN", "HDBSCAN"] else None
         damping = st.slider("Select Damping Value", 0.5, 1.0, 0.9) if algorithm == "Affinity Propagation" else None
         preference = st.slider("Select Preference Value", -100, -50, -50) if algorithm == "Affinity Propagation" else None
 
