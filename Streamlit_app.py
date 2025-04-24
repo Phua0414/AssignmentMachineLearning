@@ -95,7 +95,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model = hdbscan.HDBSCAN(min_cluster_size=min_samples)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Affinity Propagation":
-        model = AffinityPropagation(damping=damping, preference=preference)
+        model = AffinityPropagation(damping=damping, preference=preference, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "BIRCH":
         model = Birch(n_clusters=k)
@@ -218,6 +218,11 @@ def main():
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
             covariance_type = st.selectbox("Select Covariance Type", ['full', 'tied', 'diag', 'spherical'])
 
+        if algorithm == "Affinity Propagation":
+            damping = st.selectbox("Select Damping", [0.5, 0.95, 5])
+            preference = st.selectbox("Select Preference", [-200, -150, -100, -50, 0])
+            metric = 'euclidean'
+
         if algorithm == "Agglomerative Clustering":
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
             linkage = st.selectbox("Select Linkage Method", ['ward', 'complete', 'average'])
@@ -227,7 +232,7 @@ def main():
                 metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
         if algorithm == "OPTICS":
-            eps = st.select_slider("Select Epsilon (eps)", options=np.linspace(0.2, 2.0, 15))
+            eps = st.selectbox("Select Epsilon (eps)", [0.2, 2.0, 15])
             xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
@@ -237,8 +242,6 @@ def main():
             k = None
         eps = st.slider("Select Epsilon (eps) Value", 0.1, 5.0, 0.5, step=0.1) if algorithm == "DBSCAN" else None
         min_samples = st.slider("Select Min Samples", 1, 20, 10) if algorithm in ["DBSCAN", "HDBSCAN"] else None
-        damping = st.slider("Select Damping Value", 0.5, 1.0, 0.9) if algorithm == "Affinity Propagation" else None
-        preference = st.slider("Select Preference Value", -100, -50, -50) if algorithm == "Affinity Propagation" else None
 
         if algorithm == "Mean Shift":
             bandwidth = st.slider("Select Bandwidth", 0.1, 1.5, 1.0)
