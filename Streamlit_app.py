@@ -209,7 +209,7 @@ def main():
         preference = st.slider("Select Preference Value", -100, -50, -50) if algorithm == "Affinity Propagation" else None
 
         if algorithm == "Mean Shift":
-            bandwidth = st.selectbox("Select Bandwidth", 0.1, 1.5, 1.0)
+            bandwidth = st.slider("Select Bandwidth", 0.1, 1.5, 1.0)
             bin_seeding = st.selectbox("Bin Seeding", [True, False])
             cluster_all = st.selectbox("Cluster All", [True, False])
         else:
