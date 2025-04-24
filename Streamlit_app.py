@@ -161,6 +161,8 @@ def perform_static_clustering(df_scaled, algorithm):
     if len(set(labels)) > 1:
         silhouette = silhouette_score(df_pca, labels)
         db_index = davies_bouldin_score(df_pca, labels)
+        calinski_score = calinski_harabasz_score(df_pca, labels)
+        dunn_index_score = dunn_index(df_pca, labels)
     else:
         silhouette, db_index = -1, -1
     
