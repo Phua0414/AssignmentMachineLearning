@@ -104,7 +104,12 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model = Birch(n_clusters=k)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Spectral Clustering":
-        model = SpectralClustering(n_clusters=num_clusters, affinity=affinity, n_neighbors=n_neighbors if affinity == 'nearest_neighbors' else 10, gamma=gamma if affinity == 'rbf' else 1.0)
+        model = SpectralClustering(
+            n_clusters=n_clusters, 
+            affinity=affinity, 
+            n_neighbors=n_neighbors if affinity == 'nearest_neighbors' else 10,  # Only apply n_neighbors if affinity is 'nearest_neighbors'
+            gamma=gamma if affinity == 'rbf' else 1.0  # Only apply gamma if affinity is 'rbf'
+        )
         labels = model.fit_predict(df_pca_dynamic)
     else:
         return None, None, -1, -1, -1, -1
