@@ -275,7 +275,7 @@ def main():
             cluster_all = st.selectbox("Cluster All", [True, False])
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity, threshold, branching_factor)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, num_clusters, eps, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity, threshold, branching_factor)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
