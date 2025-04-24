@@ -76,7 +76,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
     if algorithm == "DBSCAN":
-        model = DBSCAN(eps=eps, min_samples=min_samples)
+        model = DBSCAN(eps=eps, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Mean Shift":
         model = MeanShift(bandwidth=bandwidth, bin_seeding=bin_seeding, cluster_all=cluster_all)
@@ -227,6 +227,11 @@ def main():
         n_components = st.slider("Select Number of PCA Components", 2, 5, 2)
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
 
+        if algorithm == "DBSCAN":
+            # Allow the user to choose eps and metric for DBSCAN
+            eps = st.selectbox("Select Epsilon (eps)", np.linspace(0.02, 0.2, 10))
+            metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
+        
         if algorithm == "Spectral Clustering":
             # Spectral Clustering Parameters
             num_clusters = st.selectbox("Select Number of Clusters", range(2, 11))
