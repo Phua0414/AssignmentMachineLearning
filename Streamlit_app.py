@@ -212,7 +212,10 @@ def main():
         xi = None
         covariance_type = None
         damping = None
-        preference = None
+        preference = None 
+        n_neighbors = None
+        gamma = None
+        affinity = None
         
         n_components = st.slider("Select Number of PCA Components", 2, 5, 2)
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
@@ -223,9 +226,7 @@ def main():
             affinity = st.selectbox("Select Affinity", ['nearest_neighbors', 'rbf'])
             if affinity == 'nearest_neighbors':
                 n_neighbors = st.slider("Select Number of Neighbors", 5, 20, 10)  # Range for n_neighbors
-                gamma = None  # No need for gamma with nearest_neighbors affinity
             else:
-                n_neighbors = None  # Not required for 'rbf'
                 gamma = st.slider("Select Gamma", 0.5, 2.0, 1.0) 
                 
         if algorithm in ["Gaussian Mixture"]:
@@ -263,7 +264,7 @@ def main():
             cluster_all = st.selectbox("Cluster All", [True, False])
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
