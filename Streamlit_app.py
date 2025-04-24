@@ -72,6 +72,7 @@ def dunn_index(X, labels):
 
 # Function to perform dynamic clustering (with user-defined parameters)
 def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None):
+    st.write(f"Debug - Algorithm: {algorithm}, k: {k}, covariance_type: {covariance_type}")
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
