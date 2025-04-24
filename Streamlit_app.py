@@ -89,7 +89,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None
         model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "OPTICS":
-        model = OPTICS(eps=eps, metric=metric, xi=xi)
+        model = OPTICS(max_eps=eps, metric=metric, xi=xi)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "HDBSCAN":
         model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, metric=metric, cluster_selection_method=selection_method)
@@ -265,7 +265,7 @@ def main():
                 metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
         elif algorithm == "OPTICS":
-            eps = st.selectbox("Select Epsilon (eps)", [0.2, 2.0, 15])
+            eps = st.selectbox("Select Max Epsilon (eps)", [0.2, 2.0, 15])
             xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
