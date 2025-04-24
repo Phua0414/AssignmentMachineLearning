@@ -71,7 +71,7 @@ def dunn_index(X, labels):
     return min_intercluster / max_intracluster if max_intracluster != 0 else -1
 
 # Function to perform dynamic clustering (with user-defined parameters)
-def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None, n_neighbors=None, gamma=None, affinity=None):
+def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None, n_neighbors=None, gamma=None, affinity=None, threshold=None, branching_factor=None):
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
@@ -101,7 +101,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         if len(set(labels)) < 2 or len(set(labels)) >= len(df_pca_dynamic):
             return df_pca_dynamic, labels, -1, -1, -1, -1 
     elif algorithm == "BIRCH":
-        model = Birch(n_clusters=k)
+        model = Birch(threshold=threshold, branching_factor=branching_factor, n_clusters=num_clusters)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Spectral Clustering":
         model = SpectralClustering(
@@ -221,6 +221,8 @@ def main():
         n_neighbors = None
         gamma = None
         affinity = None
+        threshold=None
+        branching_factor=None
         
         n_components = st.slider("Select Number of PCA Components", 2, 5, 2)
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
@@ -233,6 +235,11 @@ def main():
                 n_neighbors = st.slider("Select Number of Neighbors", 5, 20, 10)  # Range for n_neighbors
             else:
                 gamma = st.slider("Select Gamma", 0.5, 2.0, 1.0) 
+                
+        if algorithm == "BIRCH":
+            num_clusters = st.selectbox("Select Number of Clusters", range(2, 11))
+            threshold = st.selectbox("Select Threshold", [0.1, 0.2, 0.3])
+            branching_factor = st.selectbox("Select Branching Factor", [25, 50])
                 
         if algorithm in ["Gaussian Mixture"]:
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
@@ -256,10 +263,6 @@ def main():
             xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
-        if algorithm in ["BIRCH"]:
-            k = st.slider("Select Number of Clusters", 2, 10, 4)
-        else:
-            k = None
         eps = st.slider("Select Epsilon (eps) Value", 0.1, 5.0, 0.5, step=0.1) if algorithm == "DBSCAN" else None
         min_samples = st.slider("Select Min Samples", 1, 20, 10) if algorithm in ["DBSCAN", "HDBSCAN"] else None
 
@@ -269,7 +272,7 @@ def main():
             cluster_all = st.selectbox("Cluster All", [True, False])
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity, threshold, branching_factor)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
