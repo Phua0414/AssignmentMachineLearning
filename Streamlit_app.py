@@ -82,8 +82,6 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_sampl
         model = MeanShift(bandwidth=bandwidth, bin_seeding=bin_seeding, cluster_all=cluster_all)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Gaussian Mixture":
-        if k is None:
-            raise ValueError("Number of clusters (k) must be specified for Gaussian Mixture.")
         model = GaussianMixture(n_components=k, covariance_type=covariance_type, random_state=42)
         model.fit(df_pca_dynamic)
         labels = model.predict(df_pca_dynamic)
