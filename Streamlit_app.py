@@ -164,7 +164,7 @@ def perform_static_clustering(df_scaled, algorithm):
     else:
         silhouette, db_index = -1, -1
     
-    return df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score
+    return df_pca, labels, silhouette, db_index, calinski_score, dunn_index_score
 
 # Function to plot clusters
 def plot_clusters(df_pca, labels, title):
@@ -198,10 +198,12 @@ def main():
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
         
         if st.button("Run Clustering (Pre-trained Models)"):
-            df_pca, labels, silhouette, db_index = perform_static_clustering(df_scaled, algorithm)
+            df_pca, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_static_clustering(df_scaled, algorithm)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
+            st.write(f"Calinski-Harabasz Score: {calinski_score:.2f}")
+            st.write(f"Dunn Index: {dunn_index_score:.4f}")
             plot_clusters(df_pca, labels, f"{algorithm} Clustering")
     
     if method == "Custom Clustering":
