@@ -6,6 +6,7 @@ import requests
 import hdbscan
 from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
 from sklearn.decomposition import PCA
+from scipy.spatial.distance import cdist
 from sklearn.cluster import DBSCAN, MeanShift, AgglomerativeClustering, OPTICS, AffinityPropagation, Birch, SpectralClustering
 from sklearn.mixture import GaussianMixture
 
