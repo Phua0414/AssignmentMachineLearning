@@ -71,7 +71,7 @@ def dunn_index(X, labels):
     return min_intercluster / max_intracluster if max_intracluster != 0 else -1
 
 # Function to perform dynamic clustering (with user-defined parameters)
-def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None):
+def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None):
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
@@ -89,7 +89,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "OPTICS":
-        model = OPTICS(min_samples=min_samples)
+        model = OPTICS(eps=eps, metric=metric, xi=xi)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "HDBSCAN":
         model = hdbscan.HDBSCAN(min_cluster_size=min_samples)
@@ -203,9 +203,6 @@ def main():
         if algorithm in ["Gaussian Mixture"]:
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
             covariance_type = st.selectbox("Select Covariance Type", ['full', 'tied', 'diag', 'spherical'])
-        else:
-            num_clusters = None
-            covariance_type = None
 
         if algorithm == "Agglomerative Clustering":
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
@@ -214,10 +211,11 @@ def main():
                 metric = 'euclidean'
             else:
                 metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
-        else:
-            k = None
-            linkage = None
-            metric = None
+
+        if algorithm == "OPTICS":
+            eps = st.select_slider("Select Epsilon (eps)", options=np.linspace(0.2, 2.0, 15))
+            xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
+            metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
         if algorithm in ["BIRCH", "Spectral Clustering"]:
             k = st.slider("Select Number of Clusters", 2, 10, 4)
@@ -232,13 +230,9 @@ def main():
             bandwidth = st.slider("Select Bandwidth", 0.1, 1.5, 1.0)
             bin_seeding = st.selectbox("Bin Seeding", [True, False])
             cluster_all = st.selectbox("Cluster All", [True, False])
-        else:
-            bandwidth = None
-            bin_seeding = None
-            cluster_all = None
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, num_clusters, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
