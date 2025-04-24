@@ -268,9 +268,6 @@ def main():
             xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
-        eps = st.slider("Select Epsilon (eps) Value", 0.1, 5.0, 0.5, step=0.1) if algorithm == "DBSCAN" else None
-        min_samples = st.slider("Select Min Samples", 1, 20, 10) if algorithm in ["DBSCAN", "HDBSCAN"] else None
-
         if algorithm == "Mean Shift":
             bandwidth = st.slider("Select Bandwidth", 0.1, 1.5, 1.0)
             bin_seeding = st.selectbox("Bin Seeding", [True, False])
