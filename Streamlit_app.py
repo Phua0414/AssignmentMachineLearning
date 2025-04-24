@@ -97,7 +97,8 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
     elif algorithm == "Affinity Propagation":
         model = AffinityPropagation(damping=damping, preference=preference, affinity=metric)
         labels = model.fit_predict(df_pca_dynamic)
-        if len(set(labels)) < 2:
+        # Check if the number of labels is invalid (too many or too few clusters)
+        if len(set(labels)) < 2 or len(set(labels)) >= len(df_pca_dynamic):
             return df_pca_dynamic, labels, -1, -1, -1, -1 
     elif algorithm == "BIRCH":
         model = Birch(n_clusters=k)
