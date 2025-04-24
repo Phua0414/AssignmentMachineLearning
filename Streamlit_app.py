@@ -71,7 +71,7 @@ def dunn_index(X, labels):
     return min_intercluster / max_intracluster if max_intracluster != 0 else -1
 
 # Function to perform dynamic clustering (with user-defined parameters)
-def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None):
+def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None, n_neighbors=None, gamma=None, affinity=None):
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
@@ -104,7 +104,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model = Birch(n_clusters=k)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Spectral Clustering":
-        model = SpectralClustering(n_clusters=k, random_state=42, affinity='nearest_neighbors')
+        model = SpectralClustering(n_clusters=num_clusters, affinity=affinity, n_neighbors=n_neighbors, gamma=gamma, random_state=42)
         labels = model.fit_predict(df_pca_dynamic)
     else:
         return None, None, -1, -1, -1, -1
@@ -217,6 +217,17 @@ def main():
         n_components = st.slider("Select Number of PCA Components", 2, 5, 2)
         algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
 
+        if algorithm == "Spectral Clustering":
+            # Spectral Clustering Parameters
+            num_clusters = st.selectbox("Select Number of Clusters", range(2, 11))
+            affinity = st.selectbox("Select Affinity", ['nearest_neighbors', 'rbf'])
+            if affinity == 'nearest_neighbors':
+                n_neighbors = st.slider("Select Number of Neighbors", 5, 20, 10)  # Range for n_neighbors
+                gamma = None  # No need for gamma with nearest_neighbors affinity
+            else:
+                n_neighbors = None  # Not required for 'rbf'
+                gamma = st.slider("Select Gamma", 0.5, 2.0, 1.0) 
+                
         if algorithm in ["Gaussian Mixture"]:
             num_clusters = st.slider("Select Number of Clusters", 2, 10, 4)
             covariance_type = st.selectbox("Select Covariance Type", ['full', 'tied', 'diag', 'spherical'])
@@ -239,7 +250,7 @@ def main():
             xi = st.selectbox("Select Xi", [0.02, 0.05, 0.1])
             metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
 
-        if algorithm in ["BIRCH", "Spectral Clustering"]:
+        if algorithm in ["BIRCH"]:
             k = st.slider("Select Number of Clusters", 2, 10, 4)
         else:
             k = None
