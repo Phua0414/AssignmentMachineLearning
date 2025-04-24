@@ -218,7 +218,7 @@ def main():
             cluster_all = None
         
         if st.button("Run Clustering (Custom)"):
-             df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
