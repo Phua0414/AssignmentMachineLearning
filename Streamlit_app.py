@@ -86,7 +86,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, num_clusters=None, 
         model.fit(df_pca_dynamic)
         labels = model.predict(df_pca_dynamic)
     elif algorithm == "Agglomerative Clustering":
-        model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, affinity=metric)
+        model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "OPTICS":
         model = OPTICS(min_samples=min_samples)
