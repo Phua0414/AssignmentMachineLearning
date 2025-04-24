@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 import pickle
 import requests
 import hdbscan
-from sklearn.metrics import silhouette_score, davies_bouldin_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
 from sklearn.decomposition import PCA
-from sklearn.cluster import DBSCAN, MeanShift, estimate_bandwidth, AgglomerativeClustering, OPTICS, AffinityPropagation, Birch, SpectralClustering
+from sklearn.cluster import DBSCAN, MeanShift, AgglomerativeClustering, OPTICS, AffinityPropagation, Birch, SpectralClustering
 from sklearn.mixture import GaussianMixture
 
 # Links to your .pkl files on GitHub
@@ -53,8 +53,23 @@ hdbscan_model = models['hdbscan_model']
 df_pca = data['df_pca']
 df_scaled = data['processed_data']
 
+# Function to compute Dunn Index
+def dunn_index(X, labels):
+    unique_clusters = list(set(labels))
+    if len(unique_clusters) < 2:
+        return -1
+    cluster_centers = [X[labels == k].mean(axis=0) for k in unique_clusters]
+    inter_dists = cdist(cluster_centers, cluster_centers)
+    np.fill_diagonal(inter_dists, np.inf)
+    min_intercluster = inter_dists.min()
+    max_intracluster = max([
+        cdist(X[labels == k], X[labels == k]).max()
+        for k in unique_clusters if len(X[labels == k]) > 1
+    ])
+    return min_intercluster / max_intracluster if max_intracluster != 0 else -1
+
 # Function to perform dynamic clustering (with user-defined parameters)
-def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None):
+def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_samples=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None):
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
@@ -62,8 +77,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_sampl
         model = DBSCAN(eps=eps, min_samples=min_samples)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Mean Shift":
-        bandwidth = estimate_bandwidth(df_pca_dynamic , quantile=0.2)
-        model = MeanShift(bandwidth=bandwidth)
+        model = MeanShift(bandwidth=bandwidth, bin_seeding=bin_seeding, cluster_all=cluster_all)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Gaussian Mixture":
         model = GaussianMixture(n_components=k, random_state=42)
@@ -94,8 +108,10 @@ def perform_dynamic_clustering(df_scaled, algorithm, k=None, eps=None, min_sampl
     if len(set(labels)) > 1:
         silhouette = silhouette_score(df_pca_dynamic, labels)
         db_index = davies_bouldin_score(df_pca_dynamic, labels)
+        calinski_score = calinski_harabasz_score(df_pca_dynamic, labels)
+        dunn_index_score = dunn_index(df_pca_dynamic, labels)
     else:
-        silhouette, db_index = -1, -1
+        silhouette, db_index, calinski_score, dunn_index_score = -1, -1, -1, -1
     
     return df_pca_dynamic, labels, silhouette, db_index
 
@@ -138,7 +154,7 @@ def perform_static_clustering(df_scaled, algorithm):
     else:
         silhouette, db_index = -1, -1
     
-    return df_pca, labels, silhouette, db_index
+    return df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score
 
 # Function to plot clusters
 def plot_clusters(df_pca, labels, title):
@@ -191,12 +207,23 @@ def main():
         min_samples = st.slider("Select Min Samples", 1, 20, 10) if algorithm in ["DBSCAN", "OPTICS", "HDBSCAN"] else None
         damping = st.slider("Select Damping Value", 0.5, 1.0, 0.9) if algorithm == "Affinity Propagation" else None
         preference = st.slider("Select Preference Value", -100, -50, -50) if algorithm == "Affinity Propagation" else None
+
+        if algorithm == "Mean Shift":
+            bandwidth = st.selectbox("Select Bandwidth", np.linspace(0.1, 1.5, 20))
+            bin_seeding = st.selectbox("Bin Seeding", [True, False])
+            cluster_all = st.selectbox("Cluster All", [True, False])
+        else:
+            bandwidth = None
+            bin_seeding = None
+            cluster_all = None
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index = perform_dynamic_clustering(df_scaled, algorithm, k, eps, min_samples, damping, preference, n_components)
+             df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, k, eps, min_samples, damping, preference, n_components, bandwidth, bin_seeding, cluster_all)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
+            st.write(f"Calinski-Harabasz Score: {calinski_score:.2f}")
+            st.write(f"Dunn Index: {dunn_index_score:.4f}")
             plot_clusters(df_pca_dynamic, labels, f"{algorithm} Clustering")
 
 if __name__ == "__main__":
