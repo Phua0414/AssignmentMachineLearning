@@ -147,7 +147,7 @@ def perform_static_clustering(df_scaled, algorithm):
         model = spectral_model
         labels = model.fit_predict(df_pca)
     else:
-        return None, None, None, None
+        return None, None, None, None, None, None
 
     # Calculate Silhouette Score and Davies-Bouldin Index
     if len(set(labels)) > 1:
