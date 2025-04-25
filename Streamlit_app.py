@@ -12,12 +12,12 @@ from sklearn.cluster import DBSCAN, MeanShift, AgglomerativeClustering, OPTICS, 
 from sklearn.mixture import GaussianMixture
 
 # Links to your .pkl files on GitHub
-data_file_url = "https://github.com/Phua0414/AssignmentMachineLearning/releases/download/Tag-1/data.pkl"
-models_file_url = "https://github.com/Phua0414/AssignmentMachineLearning/releases/download/Tag-1/all_models.pkl"
+ata_file_url = "https://github.com/Phua0414/AssignmentMachineLearning/releases/download/Tag-1/data.pkl"
+models_with_label_file_url = "https://github.com/Phua0414/AssignmentMachineLearning/releases/download/Tag-1/all_models.pkl"
 
 # File paths
 data_file_path = "data.pkl"
-models_file_path = "all_models.pkl"
+models_with_label_file_path = "models_with_labels.pkl"
 
 # Function to download file from GitHub
 def download_file_from_github(url, destination):
@@ -27,31 +27,21 @@ def download_file_from_github(url, destination):
 
 # Download the files from GitHub
 download_file_from_github(data_file_url, data_file_path)
-download_file_from_github(models_file_url, models_file_path)
+download_file_from_github(models_with_label_file_url, models_with_label_file_path)
 
 # Load data and models from pickle files
 def load_data_and_models():
     with open(data_file_path, "rb") as data_file:
         data = pickle.load(data_file)
     
-    with open(models_file_path, "rb") as model_file:
-        models = pickle.load(model_file)
+    with open(models_with_label_file_path, "rb") as model_file:
+        models_with_labels = pickle.load(model_file)
     
-    return data, models
+    return data, models_with_labels
 
 # Load the data and models
-data, models = load_data_and_models()
+data, models_with_labels = load_data_and_models()
 
-# Extract individual models
-dbscan_model = models['dbscan_model']
-mean_shift_model = models['mean_shift_model']
-agg_clustering_model = models['agg_clustering_model']
-optics_model = models['optics_model']
-aff_prop_model = models['aff_prop_model']
-birch_model = models['birch_model']
-spectral_model = models['spectral_model']
-gmm_model = models['gmm_model']
-hdbscan_model = models['hdbscan_model']
 df_pca = data['df_pca']
 df_scaled = data['processed_data']
 
@@ -127,35 +117,33 @@ def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None
 
 # Function to perform static clustering (using pre-trained models)
 def perform_static_clustering(df_scaled, algorithm):
-    if algorithm == "DBSCAN":
-        model = dbscan_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "Mean Shift":
-        model = mean_shift_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "Gaussian Mixture":
-        model = gmm_model
-        labels = model.predict(df_pca)
-    elif algorithm == "Agglomerative Clustering":
-        model = agg_clustering_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "OPTICS":
-        model = optics_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "HDBSCAN":
-        model = hdbscan_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "Affinity Propagation":
-        model = aff_prop_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "BIRCH":
-        model = birch_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "Spectral Clustering":
-        model = spectral_model
-        labels = model.fit_predict(df_pca)
-    else:
-        return None, None, None, None, None, None
+    try:
+        if algorithm == "DBSCAN":
+            labels = models_with_labels['dbscan']['labels']
+        elif algorithm == "Mean Shift":
+            labels = models_with_labels['mean_shift']['labels']
+        elif algorithm == "Gaussian Mixture":
+            labels = models_with_labels['gmm']['labels']
+        elif algorithm == "Agglomerative Clustering":
+            labels = models_with_labels['agg_clustering']['labels']
+        elif algorithm == "OPTICS":
+            labels = models_with_labels['optics']['labels']
+        elif algorithm == "HDBSCAN":
+            labels = models_with_labels['hdbscan']['labels']
+        elif algorithm == "Affinity Propagation":
+            labels = models_with_labels['aff_prop']['labels']
+        elif algorithm == "BIRCH":
+            labels = models_with_labels['birch']['labels']
+        elif algorithm == "Spectral Clustering":
+            labels = models_with_labels['spectral']['labels']
+        else:
+            return None, None, -1, -1, -1, -1
+    except KeyError as e:
+        st.error(f"Error: Could not find labels for {algorithm}. Error: {e}")
+        return None, None, -1, -1, -1, -1
+    except Exception as e:
+        st.error(f"Unexpected error: {e}")
+        return None, None, -1, -1, -1, -1
 
     # Calculate Silhouette Score and Davies-Bouldin Index
     if len(set(labels)) > 1:
@@ -164,10 +152,9 @@ def perform_static_clustering(df_scaled, algorithm):
         calinski_score = calinski_harabasz_score(df_pca, labels)
         dunn_index_score = dunn_index(df_pca, labels)
     else:
-        silhouette, db_index = -1, -1
+        silhouette, db_index, calinski_score, dunn_index_score = -1, -1, -1, -1
     
     return df_pca, labels, silhouette, db_index, calinski_score, dunn_index_score
-
 # Function to plot clusters
 def plot_clusters(df_pca, labels, title):
     plt.figure(figsize=(10, 6))
