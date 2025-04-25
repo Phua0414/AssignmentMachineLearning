@@ -12,8 +12,8 @@ from sklearn.cluster import DBSCAN, MeanShift, AgglomerativeClustering, OPTICS, 
 from sklearn.mixture import GaussianMixture
 
 # Links to your .pkl files on GitHub
-data_file_url = "https://github.com/Phua0414/Test/releases/download/Tag-1/data.pkl"
-models_file_url = "https://github.com/Phua0414/Test/releases/download/Tag-1/all_models.pkl"
+data_file_url = "https://github.com/Phua0414/AssignmentMachineLearning/releases/download/Tag-1/data.pkl"
+models_file_url = "https://github.com/Phua0414/AssignmentMachineLearning/releases/download/Tag-1/all_models.pkl"
 
 # File paths
 data_file_path = "data.pkl"
