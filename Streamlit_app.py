@@ -89,7 +89,7 @@ def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None
         model = AgglomerativeClustering(n_clusters=num_clusters, linkage=linkage, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "OPTICS":
-        model = OPTICS(max_eps=eps, metric=metric, xi=xi)
+        model = OPTICS(max_eps=eps, xi=xi, metric=metric)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "HDBSCAN":
         model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, metric=metric, cluster_selection_method=selection_method)
