@@ -51,7 +51,6 @@ aff_prop_model = models['aff_prop_model']
 birch_model = models['birch_model']
 spectral_model = models['spectral_model']
 gmm_model = models['gmm_model']
-hdbscan_model = models['hdbscan_model']
 df_pca = data['df_pca']
 df_scaled = data['processed_data']
 
@@ -71,7 +70,7 @@ def dunn_index(X, labels):
     return min_intercluster / max_intracluster if max_intracluster != 0 else -1
 
 # Function to perform dynamic clustering (with user-defined parameters)
-def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None, n_neighbors=None, gamma=None, affinity=None, threshold=None, branching_factor=None, min_cluster_size=None, selection_method=None):
+def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None, damping=None, preference=None, n_components=None, bandwidth=None, bin_seeding=None, cluster_all=None, covariance_type=None, linkage = None, metric = None, xi=None, n_neighbors=None, gamma=None, affinity=None, threshold=None, branching_factor=None):
     pca = PCA(n_components=n_components)
     df_pca_dynamic  = pca.fit_transform(df_scaled)
     
@@ -90,9 +89,6 @@ def perform_dynamic_clustering(df_scaled, algorithm, num_clusters=None, eps=None
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "OPTICS":
         model = OPTICS(max_eps=eps, xi=xi, metric=metric)
-        labels = model.fit_predict(df_pca_dynamic)
-    elif algorithm == "HDBSCAN":
-        model = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, metric=metric, cluster_selection_method=selection_method)
         labels = model.fit_predict(df_pca_dynamic)
     elif algorithm == "Affinity Propagation":
         model = AffinityPropagation(damping=damping, preference=preference, affinity=metric)
@@ -142,9 +138,6 @@ def perform_static_clustering(df_scaled, algorithm):
         labels = model.fit_predict(df_pca)
     elif algorithm == "OPTICS":
         model = optics_model
-        labels = model.fit_predict(df_pca)
-    elif algorithm == "HDBSCAN":
-        model = hdbscan_model
         labels = model.fit_predict(df_pca)
     elif algorithm == "Affinity Propagation":
         model = aff_prop_model
@@ -199,7 +192,7 @@ def main():
     method = st.selectbox("Choose Clustering Method", ["Pre-trained Models", "Custom Clustering"])
     
     if method == "Pre-trained Models":
-        algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
+        algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
         
         if st.button("Run Clustering (Pre-trained Models)"):
             df_pca, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_static_clustering(df_scaled, algorithm)
@@ -217,19 +210,12 @@ def main():
         metric, eps, xi = None, None, None
         covariance_type, damping, preference = None, None, None
         n_neighbors, gamma, affinity = None, None, None
-        threshold, branching_factor, min_cluster_size = None, None, None
-        selection_method = None
+        threshold, branching_factor = None, None
         
         n_components = st.slider("Select Number of PCA Components", 2, 5, 2)
-        algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "HDBSCAN", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
+        algorithm = st.selectbox("Select Clustering Algorithm", ["DBSCAN", "Mean Shift", "Gaussian Mixture", "Agglomerative Clustering", "OPTICS", "Affinity Propagation", "BIRCH", "Spectral Clustering"])
 
-
-        if algorithm == "HDBSCAN":
-            min_cluster_size = st.selectbox("Select Min Cluster Size", range(5, 21, 3))
-            selection_method = st.selectbox("Select Selection Method", ['eom', 'leaf'])
-            metric = st.selectbox("Select Metric", ['euclidean', 'manhattan'])
-        
-        elif algorithm == "DBSCAN":
+        if algorithm == "DBSCAN":
             eps_values = np.linspace(0.02, 0.2, 10)
             eps_values_rounded = np.round(eps_values, 2)
             eps = st.selectbox("Select Epsilon (eps)", eps_values_rounded)
@@ -277,7 +263,7 @@ def main():
             cluster_all = st.selectbox("Cluster All", [True, False])
         
         if st.button("Run Clustering (Custom)"):
-            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, num_clusters, eps, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity, threshold, branching_factor, min_cluster_size, selection_method)
+            df_pca_dynamic, labels, silhouette, db_index, calinski_score, dunn_index_score = perform_dynamic_clustering(df_scaled, algorithm, num_clusters, eps, damping, preference, n_components, bandwidth, bin_seeding, cluster_all, covariance_type, linkage, metric, xi, n_neighbors, gamma, affinity, threshold, branching_factor)
             st.write(f"### {algorithm} Clustering Results")
             st.write(f"Silhouette Score: {silhouette:.6f}")
             st.write(f"Davies-Bouldin Index: {db_index:.6f}")
